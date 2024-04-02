@@ -79,11 +79,11 @@ public class quickSortImp {
         }
 
     public static void main(String[] args){ 
-        int[] inputData= {1,7,3,5,4,6,2,8,9,21,3};
+        int[] inputData= {1,7,3,5,4,6,2,8,9,21,3,345,436,234,6436,745,3,3,3,234234,235,32,54};
 
         List<Integer> res = SplitAndMerge(inputData);
 
-        System.out.println("Final Result:"+res.toString());
+        System.out.println("\nFinal Result:"+res.toString());
     }
 
     
