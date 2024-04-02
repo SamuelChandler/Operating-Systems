@@ -19,7 +19,7 @@ import java.util.List;
 
 public class quickSortImp {
 
-    public static int[] SplitAndMerge(int[] args){ 
+    public static List<Integer> SplitAndMerge(int[] args){ 
     
         //pivot point of the array for the quick sort
             int pivot = args[args.length-1];
@@ -33,34 +33,57 @@ public class quickSortImp {
         //iterate through each element of the input Data
             for(int x = 0; x <args.length;x++){
                 //if higher than pivot then add to higher array else to lower
-                if(args[x]<=pivot){
+                if(args[x]<pivot){
                     lower.add(args[x]);
-                }else{
+                }else if(args[x] > pivot){
                     higher.add(args[x]);
                 }
             }
+
+            //if higher is larger than 2 perform split and merge, at 2 swap, else do nothing 
+            if(higher.size() > 2){
+                higher = SplitAndMerge(higher.stream().mapToInt(Integer::intValue).toArray());
+            }else if(higher.size() == 2){
+                if(higher.get(0) > higher.get(1)){
+                    higher.add(higher.get(0));
+                    higher.remove(0);
+                }   
+            }
+
+            if(lower.size() > 2){
+                lower = SplitAndMerge(lower.stream().mapToInt(Integer::intValue).toArray());
+            }else if(lower.size() == 2){
+                if(lower.get(0) > lower.get(1)){
+                    lower.add(lower.get(0));
+                    lower.remove(0);
+                }   
+            }
     
             //print values to check 
-            System.err.println("data: "+ args);
-            System.out.println(pivot);
+
+            System.out.println("\ndata: "+ Arrays.toString(args));
+            System.out.println("Pivot: "+pivot);
             System.out.println("Lower: "+lower.toString());
             System.out.println("Higher: " + higher.toString());
     
             // adding the results to the split
             result.addAll(lower);
+            result.add(pivot);
             result.addAll(higher);
+
+            System.out.println("Result: " + result.toString());
     
             //print result
-            return(result.stream().mapToInt(Integer::intValue).toArray());
+            return(result);
     
         }
 
     public static void main(String[] args){ 
-        int[] inputData= {1,7,3,5,4,6,2};
+        int[] inputData= {1,7,3,5,4,6,2,8,9,21,3};
 
-        int[] res = SplitAndMerge(inputData);
+        List<Integer> res = SplitAndMerge(inputData);
 
-        System.out.println(Arrays.toString(res));
+        System.out.println("Final Result:"+res.toString());
     }
 
     
@@ -68,6 +91,6 @@ public class quickSortImp {
 
 
 //next steps:
-// 1 create quick sort base without forking [] 
-// 2 implement with forming and window size []
+// 1 create quick sort base without forking [X] 
+// 2 implement with forking and window size []
 // 3 integrate Random int generator         []
