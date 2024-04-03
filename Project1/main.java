@@ -32,12 +32,14 @@ public class main {
         }
         bf.close();
 
+        System.err.println("Inputted Data Array: "+inData.toString());
+
         inputData = inData.stream().mapToInt(Integer::intValue).toArray();
 
 
-        QuickSortTask Quicksort = new QuickSortTask(inputData);
-        Quicksort.compute();
-        Quicksort.WriteToFile();
+        //QuickSortTask Quicksort = new QuickSortTask(inputData);
+        //Quicksort.compute();
+        //Quicksort.WriteToFile();
 
         MergeSortTask MergeSort = new MergeSortTask(inputData, 0, inputData.length-1);
         MergeSort.compute();

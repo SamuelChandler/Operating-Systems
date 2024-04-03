@@ -78,6 +78,12 @@ public class QuickSortTask extends RecursiveAction{
                 high[x] = higher.get(x);
             }
 
+            //this processes ID
+            System.out.println("\nThread"+this);
+            System.out.println("Pivot: "+pivot);
+            System.out.println("Low array:  "+Arrays.toString(low));
+            System.out.println("High array: "+Arrays.toString(high));
+
             QuickSortTask lowQuickSortTask = new QuickSortTask(low);
             QuickSortTask highQuickSortTask = new QuickSortTask(high);
 
@@ -107,7 +113,8 @@ public class QuickSortTask extends RecursiveAction{
 
             array = res.stream().mapToInt(Integer::intValue).toArray();
 
-            System.out.println("\nResult: "+res + "\n\n");
+            System.out.println("\nThread"+this);
+            System.out.println("Result: "+res);
         }
     }
 

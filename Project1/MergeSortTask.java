@@ -50,14 +50,20 @@ public class MergeSortTask extends RecursiveAction{
             MergeSortTask left = new MergeSortTask(array,start,mid);
             MergeSortTask right = new MergeSortTask(array,mid+1,finish);
 
+
+            
+
             left.fork();
             left.join();
 
             right.fork();
             right.join();
            
-
+            System.out.println(this);
+            System.out.println("Left Pointer: " + start + ",   Mid Pointer: "+mid+",   Last Pointer: "+finish + "");
+            System.out.println("Before Merge: "+Arrays.toString(array));
             merge(start, mid, finish);
+            System.out.println("After Merge: "+Arrays.toString(array)+"\n");
             return;
         }
         return;
