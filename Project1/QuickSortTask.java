@@ -20,7 +20,7 @@ public class QuickSortTask extends RecursiveAction{
     }
 
     public void WriteToFile() throws Exception{
-        String filename = "QuickSort_Result";
+        String filename = "QuickSort_Result.txt";
         BufferedWriter out = null;
         out = new BufferedWriter(new FileWriter(filename));
 
@@ -77,10 +77,10 @@ public class QuickSortTask extends RecursiveAction{
             highQuickSortTask.fork();
 
             lowQuickSortTask.join();
-            System.out.println(lowQuickSortTask + "\nLower Result: "+Arrays.toString(lowQuickSortTask.array) + "\n\n");
+            //System.out.println(lowQuickSortTask + "\nLower Result: "+Arrays.toString(lowQuickSortTask.array) + "\n\n");
 
             highQuickSortTask.join();
-            System.out.println(highQuickSortTask + "\nHigher Result: "+Arrays.toString(highQuickSortTask.array)+ "\n");
+            //System.out.println(highQuickSortTask + "\nHigher Result: "+Arrays.toString(highQuickSortTask.array)+ "\n");
 
             low = lowQuickSortTask.array;
             high = highQuickSortTask.array;

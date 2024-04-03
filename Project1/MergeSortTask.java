@@ -21,7 +21,7 @@ public class MergeSortTask extends RecursiveAction{
     }
 
     public void WriteToFile() throws Exception{
-        String filename = "MergeSort_Result";
+        String filename = "MergeSort_Result.txt";
         BufferedWriter out = null;
         out = new BufferedWriter(new FileWriter(filename));
 
@@ -43,13 +43,11 @@ public class MergeSortTask extends RecursiveAction{
             MergeSortTask left = new MergeSortTask(array,start,mid);
             MergeSortTask right = new MergeSortTask(array,mid+1,finish);
 
-             left.fork();
-            while(!left.isDone()){} 
-            
-                   
+            left.fork();
+            left.join();
 
             right.fork();
-            while(!right.isDone()){}
+            right.join();
            
 
             merge(start, mid, finish);
@@ -59,7 +57,7 @@ public class MergeSortTask extends RecursiveAction{
     }
 
     public void merge(int left, int mid, int right){
-        System.out.println(Arrays.toString(array.clone()));
+        
         //define the lengths of each portion of the array
         int lenLeft = mid - left + 1;
         int lenRight = right - mid;
