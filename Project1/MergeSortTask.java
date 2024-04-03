@@ -1,3 +1,10 @@
+/*
+ Samuel Chandler 
+ CE4348
+ 4.3.2024
+ Project 1 
+ */
+
 package Project1;
 
 import java.io.BufferedWriter;

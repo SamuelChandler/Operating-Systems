@@ -1,3 +1,13 @@
+/*
+ Samuel Chandler 
+ CE4348
+ 4.3.2024
+ Project 1 
+
+ This file reads in the random file created by "RandomIntegerGenerator.java" and starts sorting using merge sort and quick sort 
+ saving the results to thier respective text files. 
+ */
+
 package Project1;
 
 import java.io.BufferedReader;
