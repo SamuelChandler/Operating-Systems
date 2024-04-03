@@ -8,5 +8,9 @@ public class main {
         Quicksort.compute();
         Quicksort.WriteToFile();
 
+        MergeSortTask MergeSort = new MergeSortTask(inputData, 0, inputData.length-1);
+        MergeSort.compute();
+        MergeSort.WriteToFile();
+
     }
 }
