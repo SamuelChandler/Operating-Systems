@@ -25,7 +25,7 @@ public class MergeSortTask extends RecursiveAction{
         BufferedWriter out = null;
         out = new BufferedWriter(new FileWriter(filename));
 
-
+        System.out.println("\nFinal Result: "+Arrays.toString(array));
         for(int i = 0 ; i<array.length;i++){
             out.write(array[i]+" ");
             out.newLine();
@@ -36,31 +36,71 @@ public class MergeSortTask extends RecursiveAction{
     }
 
     public void compute(){
-        if(finish - start == threshold){
-            if(array[finish] < array[start]){
-                //swap if the earlier value is larger
-                int temp = array[finish];
-                array[finish] = array[start];
-                array[start] = temp;
-                
-            }
-        }else if (array.length > 2){
-        
-            int mid = (finish - start) /2;
+        if(start<finish){
+            int mid =  (start+finish)/2;
             
-            System.out.println(mid);
-            System.out.println(Arrays.toString(array));
 
             MergeSortTask left = new MergeSortTask(array,start,mid);
             MergeSortTask right = new MergeSortTask(array,mid+1,finish);
 
-            left.fork();
-            right.fork();
-
-            left.join();
-            right.join();
-
+             left.fork();
+            while(!left.isDone()){} 
             
+                   
+
+            right.fork();
+            while(!right.isDone()){}
+           
+
+            merge(start, mid, finish);
+            return;
         }
+        return;
+    }
+
+    public void merge(int left, int mid, int right){
+        System.out.println(Arrays.toString(array.clone()));
+        //define the lengths of each portion of the array
+        int lenLeft = mid - left + 1;
+        int lenRight = right - mid;
+
+        //create and populate temp arrays of left and right portions
+        int L[] = new int[lenLeft];
+        int R[] = new int[lenRight];
+
+        for(int i =0;i < lenLeft; ++i){
+            L[i] = array[left +i];
+        }
+
+        for(int i =0;i < lenRight; ++i){
+            R[i] = array[mid+1+i];
+        }
+
+        //start the merge
+        int x =0,y = 0,k=left;
+
+        while(x < lenLeft && y < lenRight){
+            if(L[x] < R[y]){
+                array[k] = L[x];
+                x++;
+            }else {
+                array[k] = R[y];
+                y++;
+            }
+            k++;
+        }
+
+        while (x < lenLeft) {
+            array[k] = L[x];
+            x++;
+            k++;
+        }
+
+        while (y < lenRight) {
+            array[k] = R[y];
+            y++;
+            k++;
+        }
+        
     }
 }
