@@ -1,5 +1,9 @@
 package Project1;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +19,21 @@ public class QuickSortTask extends RecursiveAction{
 
     public QuickSortTask(int[] arr){
         array = arr;
+    }
+
+    public void WriteToFile() throws Exception{
+        String filename = "QuickSort_Result";
+        BufferedWriter out = null;
+        out = new BufferedWriter(new FileWriter(filename));
+
+
+        for(int i = 0 ; i<array.length;i++){
+            out.write(array[i]+" ");
+            out.newLine();
+        }
+
+        out.flush();
+        out.close();
     }
 
     public void compute(){
@@ -85,4 +104,6 @@ public class QuickSortTask extends RecursiveAction{
             System.out.println("\nResult: "+res + "\n\n");
         }
     }
+
+
 }
