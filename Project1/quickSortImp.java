@@ -14,8 +14,9 @@ simple algorithm such as the Selection or Insertion sort.
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.RecursiveAction;
 
-//split on the last element
+
 
 public class quickSortImp {
 
@@ -42,6 +43,7 @@ public class quickSortImp {
 
             //if higher is larger than 2 perform split and merge, at 2 swap, else do nothing 
             if(higher.size() > 2){
+                //fork and perform function on higher portion
                 higher = SplitAndMerge(higher.stream().mapToInt(Integer::intValue).toArray());
             }else if(higher.size() == 2){
                 if(higher.get(0) > higher.get(1)){
@@ -51,6 +53,7 @@ public class quickSortImp {
             }
 
             if(lower.size() > 2){
+                //fork and perform functoin on lower portion
                 lower = SplitAndMerge(lower.stream().mapToInt(Integer::intValue).toArray());
             }else if(lower.size() == 2){
                 if(lower.get(0) > lower.get(1)){
