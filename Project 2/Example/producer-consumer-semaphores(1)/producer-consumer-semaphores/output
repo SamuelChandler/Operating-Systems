@@ -1,0 +1,71 @@
+g++ -g -std=c++11  -c producer-consumer.cpp 
+producer-consumer.cpp: In function ‘void add(int)’:
+producer-consumer.cpp:55:21: error: template argument 1 is invalid
+    unique_lock<mutex>  pcULock( pcLock );
+                     ^
+producer-consumer.cpp:55:31: error: invalid type in declaration before ‘(’ token
+    unique_lock<mutex>  pcULock( pcLock );
+                               ^
+producer-consumer.cpp:55:40: error: cannot convert ‘std::mutex’ to ‘int’ in initialization
+    unique_lock<mutex>  pcULock( pcLock );
+                                        ^
+producer-consumer.cpp:61:29: error: no matching function for call to ‘std::condition_variable::wait(int&)’
+       notFull.wait( pcULock );
+                             ^
+producer-consumer.cpp:61:29: note: candidates are:
+In file included from producer-consumer.cpp:12:0:
+/usr/include/c++/4.8.2/condition_variable:86:5: note: void std::condition_variable::wait(std::unique_lock<std::mutex>&)
+     wait(unique_lock<mutex>& __lock);
+     ^
+/usr/include/c++/4.8.2/condition_variable:86:5: note:   no known conversion for argument 1 from ‘int’ to ‘std::unique_lock<std::mutex>&’
+/usr/include/c++/4.8.2/condition_variable:90:7: note: template<class _Predicate> void std::condition_variable::wait(std::unique_lock<std::mutex>&, _Predicate)
+       wait(unique_lock<mutex>& __lock, _Predicate __p)
+       ^
+/usr/include/c++/4.8.2/condition_variable:90:7: note:   template argument deduction/substitution failed:
+producer-consumer.cpp:61:29: note:   cannot convert ‘pcULock’ (type ‘int’) to type ‘std::unique_lock<std::mutex>&’
+       notFull.wait( pcULock );
+                             ^
+producer-consumer.cpp:76:12: error: request for member ‘unlock’ in ‘pcULock’, which is of non-class type ‘int’
+    pcULock.unlock( );
+            ^
+producer-consumer.cpp: In function ‘int remove()’:
+producer-consumer.cpp:85:21: error: template argument 1 is invalid
+    unique_lock<mutex>  pcULock( pcLock );
+                     ^
+producer-consumer.cpp:85:31: error: invalid type in declaration before ‘(’ token
+    unique_lock<mutex>  pcULock( pcLock );
+                               ^
+producer-consumer.cpp:85:40: error: cannot convert ‘std::mutex’ to ‘int’ in initialization
+    unique_lock<mutex>  pcULock( pcLock );
+                                        ^
+producer-consumer.cpp:91:30: error: no matching function for call to ‘std::condition_variable::wait(int&)’
+       notEmpty.wait( pcULock );
+                              ^
+producer-consumer.cpp:91:30: note: candidates are:
+In file included from producer-consumer.cpp:12:0:
+/usr/include/c++/4.8.2/condition_variable:86:5: note: void std::condition_variable::wait(std::unique_lock<std::mutex>&)
+     wait(unique_lock<mutex>& __lock);
+     ^
+/usr/include/c++/4.8.2/condition_variable:86:5: note:   no known conversion for argument 1 from ‘int’ to ‘std::unique_lock<std::mutex>&’
+/usr/include/c++/4.8.2/condition_variable:90:7: note: template<class _Predicate> void std::condition_variable::wait(std::unique_lock<std::mutex>&, _Predicate)
+       wait(unique_lock<mutex>& __lock, _Predicate __p)
+       ^
+/usr/include/c++/4.8.2/condition_variable:90:7: note:   template argument deduction/substitution failed:
+producer-consumer.cpp:91:30: note:   cannot convert ‘pcULock’ (type ‘int’) to type ‘std::unique_lock<std::mutex>&’
+       notEmpty.wait( pcULock );
+                              ^
+producer-consumer.cpp:109:12: error: request for member ‘unlock’ in ‘pcULock’, which is of non-class type ‘int’
+    pcULock.unlock( );
+            ^
+producer-consumer.cpp: In function ‘int main()’:
+producer-consumer.cpp:148:15: error: reference to ‘mutex’ is ambiguous
+    sem_init( &mutex, 0, 1 );
+               ^
+producer-consumer.cpp:47:7: note: candidates are: sem_t mutex
+ sem_t mutex;
+       ^
+In file included from producer-consumer.cpp:11:0:
+/usr/include/c++/4.8.2/mutex:117:9: note:                 class std::mutex
+   class mutex : private __mutex_base
+         ^
+make: *** [producer-consumer.o] Error 1
