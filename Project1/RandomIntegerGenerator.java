@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class RandomIntegerGenerator {
     public static void main(String[] args) {
-        int arraySize = 20000;
+        int arraySize = 10;
         int[] randomIntegers = generateRandomIntegers(arraySize);
 
         // Specify the file path
