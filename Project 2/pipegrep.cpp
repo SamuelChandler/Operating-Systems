@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fstream>
 
 
 #include <cmath>
@@ -16,6 +17,12 @@
 
 using namespace std;
 
+struct line{
+    string name;
+    int lineNumber;
+    string line;
+};
+
 struct Buffer{
     sem_t pcMutex;
     sem_t emptySlots;
@@ -24,7 +31,17 @@ struct Buffer{
     vector<string> contents;
 };
 
-vector<Buffer> bufferList(4);
+struct LineBuffer{
+    sem_t pcMutex;
+    sem_t emptySlots;
+    sem_t fullSlots;
+
+    vector<line> contents;
+};
+
+vector<Buffer> bufferList(2);
+LineBuffer buffer3;
+LineBuffer buffer4;
 
 DIR *dir;
 dirent *dp;
@@ -69,17 +86,26 @@ int main(int argc, char *argv[]){
         sem_init(&buffer.fullSlots,0,0);
     }
 
+    //create buffer for buffer lists'
+    sem_init(&buffer3.pcMutex,0,1);
+    sem_init(&buffer3.emptySlots,0,buffsize);
+    sem_init(&buffer3.fullSlots,0,0);
+
+    sem_init(&buffer4.pcMutex,0,1);
+    sem_init(&buffer4.emptySlots,0,buffsize);
+    sem_init(&buffer4.fullSlots,0,0);
+
     //create threads
     stage1 = thread(s1);
     stage2 = thread(s2);
-    //stage3 = thread(s3);
+    stage3 = thread(s3);
     //stage4 = thread(s4);
     //stage5 = thread(s5);
 
     //wait and join all threads 
     stage1.join();
     stage2.join();
-    //stage3.join();
+    stage3.join();
     //stage4.join();
     //stage5.join();
 
@@ -139,6 +165,50 @@ string remove(Buffer &buf){
 	return data;
 }
 
+//Adds to specified Line buffer
+void LineAdd(line data, LineBuffer &buf){
+
+    //reserving spot in buffer
+    sem_wait(&buf.emptySlots);
+
+    //acquire lock for critical section
+    sem_wait(&buf.pcMutex);
+
+    assert(buf.contents.size() >= 0 && buf.contents.size() <= buffsize);
+
+    //insert item
+    buf.contents.insert(buf.contents.begin(),data);
+
+    //wake up consumer
+    sem_post(&buf.fullSlots);
+
+    //release critical section lock
+    sem_post(&buf.pcMutex);
+}
+
+//removes from the specified buffer returning the removed value 
+line LineRemove(LineBuffer &buf){
+    /* Reserve a full slot */
+	sem_wait(&buf.fullSlots);
+
+	/* Acquire the lock for critical section */
+	sem_wait(&buf.pcMutex);
+
+	assert(buf.contents.size() >= 0 && buf.contents.size() <= buffsize);
+
+	// Delete an item at the end of the buffer and store into data
+	line data = buf.contents.back();
+	buf.contents.pop_back();
+	assert(data.name != "");
+
+	// Wake up a producer 
+	sem_post(&buf.emptySlots);
+
+	// Release the lock for critical section 
+	sem_post(&buf.pcMutex);
+
+	return data;
+}
 
 
 //stage 1 thread used for deterining the files within the current directory
@@ -168,6 +238,7 @@ void s2(){
         string name = remove(bufferList[0]);
 
         if(name == "Done"){
+            add(name,bufferList[1]);
             break;
         }
 
@@ -193,8 +264,36 @@ void s2(){
     cout << "Stage 2 Complete" << endl;
 }
 
+//this phase will open each file and add the lines to the next buffer so it can be scanned for the target
 void s3(){
-    cout << "Stage 3" << endl;
+
+    while (1)
+    {   
+        //get file name from buffer 
+        string name = remove(bufferList[1]);
+
+        //check if it is the done flag
+        if(name == "Done"){
+            add(name,bufferList[2]);
+            break;
+        }
+
+        //open file and start reading through 
+        ifstream file(name);
+        if(file.is_open()){
+            string line; 
+            int lineNum = 1;
+
+            while(getline(file,line)){
+                string lineToBuffer =  line+ "("+to_string(lineNum++)+")" + name;
+                add(lineToBuffer, bufferList[3]);
+            }
+            file.close();
+        }
+
+
+    }
+    cout << "Stage 3 Completed" << endl;
 }
 
 void s4(){
