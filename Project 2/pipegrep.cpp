@@ -3,6 +3,10 @@
 #include <string>
 #include <vector>
 
+#include <cmath>
+#include <cstdlib>
+#include <cassert>
+
 #include <semaphore.h>
 
 using namespace std;
@@ -29,6 +33,15 @@ void s3();
 void s4();
 void s5();
 
+int buffsize;
+int filesize;
+int uid;
+int gid;
+string target;
+
+void add(string, Buffer);
+string remove( Buffer);
+
 
 int main(int argc, char *argv[]){
 
@@ -37,12 +50,12 @@ int main(int argc, char *argv[]){
     string s_filesize = argv[2];
     string s_uid = argv[3];
     string s_gid = argv[4];
-    string target = argv[5];
+    target = argv[5];
 
-    int buffsize = stoi(s_buffsize);
-    int filesize = stoi(s_filesize);
-    int uid = stoi(s_uid);
-    int gid = stoi(s_gid);
+    buffsize = stoi(s_buffsize);
+    filesize = stoi(s_filesize);
+    uid = stoi(s_uid);
+    gid = stoi(s_gid);
 
     //creating the needed buffers
     for(Buffer &buffer: bufferList){
@@ -76,7 +89,55 @@ int main(int argc, char *argv[]){
   
 }
 
-//stage 1 thread used for 
+//Adds to specified buffer
+void add(string data, Buffer &buf){
+
+    //reserving spot in buffer
+    sem_wait(&buf.emptySlots);
+
+    //acquire lock for critical section
+    sem_wait(&buf.pcMutex);
+
+    assert(buf.contents.size() > 0 && buf.contents.size() <= buffsize);
+
+    //insert item
+    buf.contents.insert(buf.contents.begin(),data);
+
+    //wake up consumer
+    sem_post(&buf.fullSlots);
+
+    //release critical section lock
+    sem_post(&buf.pcMutex);
+}
+
+//removes from the specified buffer returning the removed value 
+string remove(Buffer &buf){
+    /* Reserve a full slot */
+	sem_wait(&buf.fullSlots);
+
+	/* Acquire the lock for critical section */
+	sem_wait(&buf.pcMutex);
+
+	assert(buf.contents.size() >= 0 && buf.contents.size() <= buffsize);
+
+	// Delete an item at the end of the buffer and store into data
+	string data = buf.contents.back();
+	buf.contents.pop_back();
+	assert(data != "");
+
+	// Wake up a producer 
+	sem_post(&buf.emptySlots);
+
+	// Release the lock for critical section 
+	sem_post(&buf.pcMutex);
+
+	return data;
+}
+
+
+
+//stage 1 thread used for deterining the files within the current directory
+//loading the file names into the first buffer 
 void s1(){
     cout << "Stage 1" << endl;
 }
