@@ -160,18 +160,33 @@ void s1(){
     cout << "Stage 1 Complete" << endl;
 }
 
+//this stage is for file filtering that is defined in the arguments of the user
 void s2(){
 
     while (1)
     {
         string name = remove(bufferList[0]);
 
-        if(name != "Done"){
-            cout << name << endl;
-        }
-        else{
+        if(name == "Done"){
             break;
         }
+
+        stat(name.c_str(),&fileStat);
+
+        int size = fileStat.st_size;
+        int f_uid = fileStat.st_uid;
+        int f_gid = fileStat.st_gid;
+
+        if(uid != -1 && f_uid != uid)
+            continue;
+        if(gid != -1 && f_gid != gid)
+            continue;
+        if(filesize != -1 && size <= filesize)
+            continue;
+
+        cout << name << endl;
+
+        add(name,bufferList[1]);
     }
 
 
