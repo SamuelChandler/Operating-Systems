@@ -67,6 +67,11 @@ int gid;
 string target;
 
 int main(int argc, char *argv[]){
+    
+    if(argc < 6){
+        cout << "pipegrep <bufsize> <filesize> <uid> <gid> <word>" << endl;
+        return 0;
+    }
 
     //getting arguments
     string s_buffsize = argv[1];
@@ -101,14 +106,14 @@ int main(int argc, char *argv[]){
     stage2 = thread(s2);
     stage3 = thread(s3);
     stage4 = thread(s4);
-    //stage5 = thread(s5);
+    stage5 = thread(s5);
 
     //wait and join all threads 
     stage1.join();
     stage2.join();
     stage3.join();
     stage4.join();
-    //stage5.join();
+    stage5.join();
 
     //destroy all buffers once stages are complete
     for (Buffer &buffer: bufferList){
@@ -116,8 +121,6 @@ int main(int argc, char *argv[]){
         sem_destroy(&buffer.emptySlots);
         sem_destroy(&buffer.fullSlots);
     }
-
-    cout << "Buffers Destroyed" << endl;
   
 }
 
@@ -228,7 +231,6 @@ void s1(){
         }
     }
     add("Done",bufferList[0]);
-    cout << "Stage 1 Complete" << endl;
 }
 
 //this stage is for file filtering that is defined in the arguments of the user
@@ -259,9 +261,6 @@ void s2(){
     }
 
     add("Done",bufferList[1]);
-
-
-    cout << "Stage 2 Complete" << endl;
 }
 
 //this phase will open each file and add the lines to the next buffer so it can be scanned for the target
@@ -288,7 +287,6 @@ void s3(){
         if(file.is_open()){
             string line; 
             int lineNum = 1;
-            cout << "trying: "+ name << endl;
 
             while(getline(file,line)){
 
@@ -298,8 +296,7 @@ void s3(){
 
                 LineAdd(lineToBuffer, buffer2);
             }
-            
-            cout << "Done: "+ name << endl;
+
             file.close();
         }else{
             cout << name + "File Does not open" << endl;
@@ -307,9 +304,9 @@ void s3(){
 
 
     }
-    cout << "Stage 3 Completed" << endl;
 }
 
+//this stage will determine if the target word in in the current string 
 void s4(){
     while (1)
     {
@@ -317,21 +314,32 @@ void s4(){
 
         if(in.name == "Done"){
 
-            lineToBuffer.name = in.name;
-            lineToBuffer.line = "Done";
-            lineToBuffer.lineNumber = 1;
-
-            LineAdd(lineToBuffer,buffer3);
+            LineAdd(in,buffer3);
             break;
         }
 
-        //cout << in.line << endl;
+        if(strstr(in.line.c_str(),target.c_str()) != NULL){
+            LineAdd(in,buffer3);
+        }
     }
     
     
-    cout << "Stage 4" << endl;
 }
 
+//this stage will print the results of stage 4 
 void s5(){
-    cout << "Stage 5" << endl;
+    while (1)
+    {
+        line in = LineRemove(buffer3);
+
+        if(in.name == "Done"){
+
+            break;
+        }
+
+        cout << in.name + " (" + to_string(in.lineNumber) + ")" << endl; 
+    }
+
 }
+
+//endif
