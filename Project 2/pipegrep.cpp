@@ -40,8 +40,9 @@ struct LineBuffer{
 };
 
 vector<Buffer> bufferList(2);
+LineBuffer buffer2;
 LineBuffer buffer3;
-LineBuffer buffer4;
+line lineToBuffer;
 
 DIR *dir;
 dirent *dp;
@@ -87,26 +88,26 @@ int main(int argc, char *argv[]){
     }
 
     //create buffer for buffer lists'
+    sem_init(&buffer2.pcMutex,0,1);
+    sem_init(&buffer2.emptySlots,0,buffsize);
+    sem_init(&buffer2.fullSlots,0,0);
+
     sem_init(&buffer3.pcMutex,0,1);
     sem_init(&buffer3.emptySlots,0,buffsize);
     sem_init(&buffer3.fullSlots,0,0);
-
-    sem_init(&buffer4.pcMutex,0,1);
-    sem_init(&buffer4.emptySlots,0,buffsize);
-    sem_init(&buffer4.fullSlots,0,0);
 
     //create threads
     stage1 = thread(s1);
     stage2 = thread(s2);
     stage3 = thread(s3);
-    //stage4 = thread(s4);
+    stage4 = thread(s4);
     //stage5 = thread(s5);
 
     //wait and join all threads 
     stage1.join();
     stage2.join();
     stage3.join();
-    //stage4.join();
+    stage4.join();
     //stage5.join();
 
     //destroy all buffers once stages are complete
@@ -238,7 +239,6 @@ void s2(){
         string name = remove(bufferList[0]);
 
         if(name == "Done"){
-            add(name,bufferList[1]);
             break;
         }
 
@@ -255,10 +255,10 @@ void s2(){
         if(filesize != -1 && size <= filesize)
             continue;
 
-        cout << name << endl;
-
         add(name,bufferList[1]);
     }
+
+    add("Done",bufferList[1]);
 
 
     cout << "Stage 2 Complete" << endl;
@@ -273,8 +273,13 @@ void s3(){
         string name = remove(bufferList[1]);
 
         //check if it is the done flag
-        if(name == "Done"){
-            add(name,bufferList[2]);
+        if(name == "Done"|| name == ""){
+
+            lineToBuffer.name = name;
+            lineToBuffer.line = "Done";
+            lineToBuffer.lineNumber = 1;
+
+            LineAdd(lineToBuffer,buffer2);
             break;
         }
 
@@ -283,12 +288,21 @@ void s3(){
         if(file.is_open()){
             string line; 
             int lineNum = 1;
+            cout << "trying: "+ name << endl;
 
             while(getline(file,line)){
-                string lineToBuffer =  line+ "("+to_string(lineNum++)+")" + name;
-                add(lineToBuffer, bufferList[3]);
+
+                lineToBuffer.name = name;
+                lineToBuffer.lineNumber = lineNum++;
+                lineToBuffer.line = line;
+
+                LineAdd(lineToBuffer, buffer2);
             }
+            
+            cout << "Done: "+ name << endl;
             file.close();
+        }else{
+            cout << name + "File Does not open" << endl;
         }
 
 
@@ -297,6 +311,24 @@ void s3(){
 }
 
 void s4(){
+    while (1)
+    {
+        line in = LineRemove(buffer2);
+
+        if(in.name == "Done"){
+
+            lineToBuffer.name = in.name;
+            lineToBuffer.line = "Done";
+            lineToBuffer.lineNumber = 1;
+
+            LineAdd(lineToBuffer,buffer3);
+            break;
+        }
+
+        //cout << in.line << endl;
+    }
+    
+    
     cout << "Stage 4" << endl;
 }
 
