@@ -2,6 +2,11 @@
 #include <thread>
 #include <string>
 #include <vector>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 
 #include <cmath>
 #include <cstdlib>
@@ -21,6 +26,10 @@ struct Buffer{
 
 vector<Buffer> bufferList(4);
 
+DIR *dir;
+dirent *dp;
+struct stat fileStat;
+
 thread stage1;
 thread stage2; 
 thread stage3;
@@ -38,10 +47,6 @@ int filesize;
 int uid;
 int gid;
 string target;
-
-void add(string, Buffer);
-string remove( Buffer);
-
 
 int main(int argc, char *argv[]){
 
@@ -67,16 +72,16 @@ int main(int argc, char *argv[]){
     //create threads
     stage1 = thread(s1);
     stage2 = thread(s2);
-    stage3 = thread(s3);
-    stage4 = thread(s4);
-    stage5 = thread(s5);
+    //stage3 = thread(s3);
+    //stage4 = thread(s4);
+    //stage5 = thread(s5);
 
     //wait and join all threads 
     stage1.join();
     stage2.join();
-    stage3.join();
-    stage4.join();
-    stage5.join();
+    //stage3.join();
+    //stage4.join();
+    //stage5.join();
 
     //destroy all buffers once stages are complete
     for (Buffer &buffer: bufferList){
@@ -98,7 +103,7 @@ void add(string data, Buffer &buf){
     //acquire lock for critical section
     sem_wait(&buf.pcMutex);
 
-    assert(buf.contents.size() > 0 && buf.contents.size() <= buffsize);
+    assert(buf.contents.size() >= 0 && buf.contents.size() <= buffsize);
 
     //insert item
     buf.contents.insert(buf.contents.begin(),data);
@@ -139,11 +144,38 @@ string remove(Buffer &buf){
 //stage 1 thread used for deterining the files within the current directory
 //loading the file names into the first buffer 
 void s1(){
-    cout << "Stage 1" << endl;
+    
+    dir = opendir(".");
+
+    while((dp = readdir(dir)) != NULL){
+        
+        if(stat(dp->d_name,&fileStat) == 0){
+            if(S_ISDIR(fileStat.st_mode)){}
+            else{
+                add(dp->d_name,bufferList[0]);
+            }
+        }
+    }
+    add("Done",bufferList[0]);
+    cout << "Stage 1 Complete" << endl;
 }
 
 void s2(){
-    cout << "Stage 2" << endl;
+
+    while (1)
+    {
+        string name = remove(bufferList[0]);
+
+        if(name != "Done"){
+            cout << name << endl;
+        }
+        else{
+            break;
+        }
+    }
+
+
+    cout << "Stage 2 Complete" << endl;
 }
 
 void s3(){
